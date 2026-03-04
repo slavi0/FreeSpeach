@@ -6,11 +6,7 @@ class AnalogiesGame extends StatefulWidget {
   final int quantity; // treated as number of rounds
   final int timer; // seconds per round
 
-  const AnalogiesGame({
-    super.key,
-    required this.quantity,
-    required this.timer,
-  });
+  const AnalogiesGame({super.key, required this.quantity, required this.timer});
 
   @override
   State<AnalogiesGame> createState() => _AnalogiesGameState();
@@ -61,6 +57,51 @@ class _AnalogiesGameState extends State<AnalogiesGame>
       "Love is like a… because…",
       "Friendship is like… because…",
       "Happiness is like… because…",
+      "A successful career is like planting a tree because…",
+      "Learning is like… because…",
+      "Failure is like… because…",
+      "Communication is like a bridge because…",
+      "Time is like… because…",
+      "Patience is like… because…",
+      "Courage is like… because…",
+      "A team is like an orchestra because…",
+      "Growth is like… because…",
+      "Struggle is like… because…",
+      "Trust is like… because…",
+      "Change is like… because…",
+      "Hope is like… because…",
+      "A good habit is like… because…",
+      "Creativity is like… because…",
+      "Connection is like… because…",
+      "Knowledge is like a key because…",
+      "Resilience is like… because…",
+      "A conversation is like… because…",
+      "Purpose is like… because…",
+      "Integrity is like… because…",
+      "A problem is like a puzzle because…",
+      "Perspective is like… because…",
+      "Self-improvement is like… because…",
+      "Motivation is like… because…",
+      "A good mentor is like… because…",
+      "Forgiveness is like… because…",
+      "Perseverance is like… because…",
+      "Understanding is like… because…",
+      "A healthy mind is like… because…",
+      "Empathy is like… because…",
+      "Success is like climbing a mountain because…",
+      "A skill is like a muscle because…",
+      "Listening is like… because…",
+      "Dreams are like… because…",
+      "Discipline is like… because…",
+      "Opportunity is like… because…",
+      "A relationship is like a garden because…",
+      "Freedom is like… because…",
+      "Progress is like… because…",
+      "Authenticity is like… because…",
+      "A goal is like a destination because…",
+      "Gratitude is like… because…",
+      "Innovation is like… because…",
+      "Community is like… because…",
     ];
   }
 
@@ -100,13 +141,13 @@ class _AnalogiesGameState extends State<AnalogiesGame>
   }
 
   Widget _buildPromptBox() => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: Text(
-          _currentPrompt,
-          style: const TextStyle(color: Colors.white, fontSize: 22),
-          textAlign: TextAlign.center,
-        ),
-      );
+    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+    child: Text(
+      _currentPrompt,
+      style: const TextStyle(color: Colors.white, fontSize: 22),
+      textAlign: TextAlign.center,
+    ),
+  );
 
   Widget _buildStatusBox() {
     return Column(
@@ -161,7 +202,11 @@ class _AnalogiesGameState extends State<AnalogiesGame>
           const SizedBox(height: 20),
           const Text(
             "Game Over!",
-            style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 20),
           ElevatedButton(

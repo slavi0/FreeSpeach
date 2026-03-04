@@ -22,17 +22,20 @@ class RapidFireController {
     required this.totalRounds,
     required this.secondsPerRound,
   }) {
-    assert(totalRounds >= 0 && secondsPerRound >= 0,
-        'rounds/seconds must be non‑negative');
+    assert(
+      totalRounds >= 0 && secondsPerRound >= 0,
+      'rounds/seconds must be non‑negative',
+    );
 
-    _anim = AnimationController(
-      vsync: vsync,
-      duration: Duration(seconds: secondsPerRound),
-    )
-      ..addListener(_tick)
-      ..addStatusListener(_status);
+    _anim =
+        AnimationController(
+            vsync: vsync,
+            duration: Duration(seconds: secondsPerRound),
+          )
+          ..addListener(_tick)
+          ..addStatusListener(_status);
 
-    // initialise notifiers so listeners can read them right away
+    // initialize notifiers so listeners can read them right away
     roundNotifier.value = 0;
     timeNotifier.value = secondsPerRound.toDouble();
     isPausedNotifier.value = false;
