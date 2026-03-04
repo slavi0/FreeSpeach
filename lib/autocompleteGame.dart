@@ -32,6 +32,7 @@ class _AutocompleteGameState extends State<AutocompleteGame>
     );
 
     _prompts = _loadPrompts();
+    _prompts.shuffle();
     _controller = RapidFireController(
       vsync: this,
       totalRounds: widget.quantity,

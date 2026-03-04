@@ -28,6 +28,7 @@ class _AnalogiesGameState extends State<AnalogiesGame>
     );
 
     _prompts = _loadPrompts();
+    _prompts.shuffle();
     _controller = RapidFireController(
       vsync: this,
       totalRounds: widget.quantity,
