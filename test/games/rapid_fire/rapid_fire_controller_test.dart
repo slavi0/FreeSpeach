@@ -4,8 +4,9 @@ import 'package:free_speach/games/rapid_fire/rapid_fire_controller.dart';
 
 void main() {
   group('RapidFireController State Management', () {
-    testWidgets('initializes with correct default values',
-        (WidgetTester tester) async {
+    testWidgets('initializes with correct default values', (
+      WidgetTester tester,
+    ) async {
       final controller = RapidFireController(
         vsync: tester,
         totalRounds: 3,
@@ -18,8 +19,9 @@ void main() {
       expect(controller.finishedNotifier.value, false);
     });
 
-    testWidgets('finishes immediately if totalRounds is 0 or negative',
-        (WidgetTester tester) async {
+    testWidgets('finishes immediately if totalRounds is 0 or negative', (
+      WidgetTester tester,
+    ) async {
       final controller = RapidFireController(
         vsync: tester,
         totalRounds: 0,
@@ -32,8 +34,9 @@ void main() {
       expect(controller.roundNotifier.value, 0);
     });
 
-    testWidgets('initializes round to 1 when started',
-        (WidgetTester tester) async {
+    testWidgets('initializes round to 1 when started', (
+      WidgetTester tester,
+    ) async {
       final controller = RapidFireController(
         vsync: tester,
         totalRounds: 3,
@@ -45,8 +48,9 @@ void main() {
       expect(controller.roundNotifier.value, 1);
     });
 
-    testWidgets('pause sets isPausedNotifier to true',
-        (WidgetTester tester) async {
+    testWidgets('pause sets isPausedNotifier to true', (
+      WidgetTester tester,
+    ) async {
       final controller = RapidFireController(
         vsync: tester,
         totalRounds: 1,
@@ -59,8 +63,9 @@ void main() {
       expect(controller.isPausedNotifier.value, true);
     });
 
-    testWidgets('resume sets isPausedNotifier to false',
-        (WidgetTester tester) async {
+    testWidgets('resume sets isPausedNotifier to false', (
+      WidgetTester tester,
+    ) async {
       final controller = RapidFireController(
         vsync: tester,
         totalRounds: 1,
@@ -76,8 +81,9 @@ void main() {
       expect(controller.isPausedNotifier.value, false);
     });
 
-    testWidgets('notifiers are disposed without error',
-        (WidgetTester tester) async {
+    testWidgets('notifiers are disposed without error', (
+      WidgetTester tester,
+    ) async {
       final controller = RapidFireController(
         vsync: tester,
         totalRounds: 1,
@@ -96,8 +102,9 @@ void main() {
       // After dispose, further state changes should not trigger errors
     });
 
-    testWidgets('timeNotifier has reasonable initial value',
-        (WidgetTester tester) async {
+    testWidgets('timeNotifier has reasonable initial value', (
+      WidgetTester tester,
+    ) async {
       final controller = RapidFireController(
         vsync: tester,
         totalRounds: 1,
@@ -107,10 +114,7 @@ void main() {
 
       controller.start();
       // time should be close to the secondsPerRound value
-      expect(
-        controller.timeNotifier.value,
-        greaterThan(0),
-      );
+      expect(controller.timeNotifier.value, greaterThan(0));
     });
   });
 }

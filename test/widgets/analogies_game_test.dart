@@ -4,22 +4,22 @@ import 'package:free_speach/analogiesGame.dart';
 
 void main() {
   group('AnalogiesGame', () {
-    testWidgets('displays correct title in AppBar', (WidgetTester tester) async {
+    testWidgets('displays correct title in AppBar', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: AnalogiesGame(quantity: 3, timer: 10),
-        ),
+        const MaterialApp(home: AnalogiesGame(quantity: 3, timer: 10)),
       );
 
       expect(find.text('Analogies'), findsOneWidget);
       expect(find.byType(AppBar), findsOneWidget);
     });
 
-    testWidgets('shows initial game view with prompt', (WidgetTester tester) async {
+    testWidgets('shows initial game view with prompt', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: AnalogiesGame(quantity: 3, timer: 10),
-        ),
+        const MaterialApp(home: AnalogiesGame(quantity: 3, timer: 10)),
       );
 
       // Should show game content, not finished view
@@ -28,11 +28,11 @@ void main() {
       expect(find.text('QUIT GAME'), findsOneWidget);
     });
 
-    testWidgets('displays round counter correctly', (WidgetTester tester) async {
+    testWidgets('displays round counter correctly', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: AnalogiesGame(quantity: 7, timer: 10),
-        ),
+        const MaterialApp(home: AnalogiesGame(quantity: 7, timer: 10)),
       );
 
       expect(find.text('Round 1 / 7'), findsOneWidget);
@@ -40,22 +40,21 @@ void main() {
 
     testWidgets('displays time text', (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: AnalogiesGame(quantity: 3, timer: 10),
-        ),
+        const MaterialApp(home: AnalogiesGame(quantity: 3, timer: 10)),
       );
 
       // Time should be displayed (format: "Time: X.Xs")
-      expect(find.byWidgetPredicate((widget) {
-        return widget is Text && widget.data!.startsWith('Time:');
-      }), findsOneWidget);
+      expect(
+        find.byWidgetPredicate((widget) {
+          return widget is Text && widget.data!.startsWith('Time:');
+        }),
+        findsOneWidget,
+      );
     });
 
     testWidgets('pause button toggles to resume', (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: AnalogiesGame(quantity: 3, timer: 10),
-        ),
+        const MaterialApp(home: AnalogiesGame(quantity: 3, timer: 10)),
       );
 
       expect(find.text('PAUSE'), findsOneWidget);
@@ -69,9 +68,7 @@ void main() {
     testWidgets('quit button pops the route', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(
-            body: AnalogiesGame(quantity: 3, timer: 10),
-          ),
+          home: Scaffold(body: AnalogiesGame(quantity: 3, timer: 10)),
         ),
       );
 
@@ -84,9 +81,7 @@ void main() {
 
     testWidgets('has dark background', (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: AnalogiesGame(quantity: 3, timer: 10),
-        ),
+        const MaterialApp(home: AnalogiesGame(quantity: 3, timer: 10)),
       );
 
       final scaffold = find.byType(Scaffold);
@@ -96,11 +91,11 @@ void main() {
       expect(scaffoldWidget.backgroundColor, Colors.black87);
     });
 
-    testWidgets('shows game over screen after finish', (WidgetTester tester) async {
+    testWidgets('shows game over screen after finish', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: AnalogiesGame(quantity: 1, timer: 1),
-        ),
+        const MaterialApp(home: AnalogiesGame(quantity: 1, timer: 1)),
       );
 
       // Initial state: playing
@@ -118,9 +113,7 @@ void main() {
 
     testWidgets('displays analogy prompt text', (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: AnalogiesGame(quantity: 3, timer: 10),
-        ),
+        const MaterialApp(home: AnalogiesGame(quantity: 3, timer: 10)),
       );
 
       // At least one analogy prompt should be visible

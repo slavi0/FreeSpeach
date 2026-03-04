@@ -13,14 +13,20 @@ class AnalogiesGame extends StatefulWidget {
 }
 
 class _AnalogiesGameState extends State<AnalogiesGame>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late RapidFireController _controller;
   late List<String> _prompts;
   String _currentPrompt = '';
+  late AnimationController _promptAnimation;
 
   @override
   void initState() {
     super.initState();
+    _promptAnimation = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+
     _prompts = _loadPrompts();
     _controller = RapidFireController(
       vsync: this,
@@ -35,6 +41,8 @@ class _AnalogiesGameState extends State<AnalogiesGame>
   }
 
   void _onRoundChanged() {
+    _promptAnimation.reset();
+    _promptAnimation.forward();
     _setPromptForRound(_controller.roundNotifier.value);
   }
 
@@ -107,6 +115,7 @@ class _AnalogiesGameState extends State<AnalogiesGame>
 
   @override
   void dispose() {
+    _promptAnimation.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -114,8 +123,13 @@ class _AnalogiesGameState extends State<AnalogiesGame>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black87,
-      appBar: AppBar(title: const Text("Analogies")),
+      backgroundColor: const Color(0xFF0F0F0F),
+      appBar: AppBar(
+        title: const Text("Analogies"),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
       body: ValueListenableBuilder<bool>(
         valueListenable: _controller.finishedNotifier,
         builder: (context, finished, _) {
@@ -126,70 +140,219 @@ class _AnalogiesGameState extends State<AnalogiesGame>
   }
 
   Widget _buildGameView() {
-    return Center(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildPromptBox(),
-          const SizedBox(height: 20),
-          _buildStatusBox(),
-          const SizedBox(height: 20),
-          _buildControlButtons(),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildPromptCard(),
+                const SizedBox(height: 48),
+                _buildProgressBar(),
+                const SizedBox(height: 24),
+                _buildHudRow(),
+              ],
+            ),
+          ),
+          _buildActionButtons(),
         ],
       ),
     );
   }
 
-  Widget _buildPromptBox() => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-    child: Text(
-      _currentPrompt,
-      style: const TextStyle(color: Colors.white, fontSize: 22),
-      textAlign: TextAlign.center,
-    ),
-  );
-
-  Widget _buildStatusBox() {
-    return Column(
-      children: [
-        ValueListenableBuilder<int>(
-          valueListenable: _controller.roundNotifier,
-          builder: (_, round, __) => Text(
-            "Round $round / ${widget.quantity}",
-            style: const TextStyle(color: Colors.white70, fontSize: 18),
+  Widget _buildPromptCard() {
+    return Card(
+      elevation: 8,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      color: const Color(0xFF1A1A1A),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 400),
+          transitionBuilder: (child, animation) => FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0, 0.1),
+                end: Offset.zero,
+              ).animate(animation),
+              child: child,
+            ),
+          ),
+          child: Text(
+            _currentPrompt,
+            key: ValueKey(_currentPrompt),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 28,
+              fontWeight: FontWeight.w500,
+              height: 1.4,
+            ),
+            textAlign: TextAlign.center,
           ),
         ),
-        const SizedBox(height: 8),
-        ValueListenableBuilder<double>(
-          valueListenable: _controller.timeNotifier,
-          builder: (_, time, __) => Text(
-            "Time: ${time.toStringAsFixed(1)}s",
-            style: const TextStyle(color: Colors.white70, fontSize: 18),
+      ),
+    );
+  }
+
+  Widget _buildProgressBar() {
+    return ValueListenableBuilder<double>(
+      valueListenable: _controller.timeNotifier,
+      builder: (_, time, __) {
+        final progress = time / widget.timer;
+        return Column(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: LinearProgressIndicator(
+                value: progress.clamp(0, 1),
+                minHeight: 8,
+                backgroundColor: Colors.white24,
+                valueColor: AlwaysStoppedAnimation(
+                  progress > 0.2 ? Colors.green[400] : Colors.red[400],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            ValueListenableBuilder<double>(
+              valueListenable: _controller.timeNotifier,
+              builder: (_, t, __) => Text(
+                "${t.toStringAsFixed(1)}s",
+                style: TextStyle(
+                  color: Colors.green[400],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildHudRow() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        Expanded(
+          child: ValueListenableBuilder<int>(
+            valueListenable: _controller.roundNotifier,
+            builder: (_, round, __) => Container(
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              decoration: BoxDecoration(
+                color: Colors.green[900]?.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    "Round",
+                    style: TextStyle(
+                      color: Colors.green[400],
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    "$round / ${widget.quantity}",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: ValueListenableBuilder<bool>(
+            valueListenable: _controller.isPausedNotifier,
+            builder: (_, paused, __) => Container(
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              decoration: BoxDecoration(
+                color: paused
+                    ? Colors.orange[900]?.withOpacity(0.3)
+                    : Colors.green[900]?.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    paused ? "Paused" : "Playing",
+                    style: TextStyle(
+                      color: paused ? Colors.orange[400] : Colors.green[400],
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Icon(
+                    paused ? Icons.pause_circle : Icons.play_circle,
+                    color: paused ? Colors.orange[400] : Colors.green[400],
+                    size: 20,
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildControlButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ValueListenableBuilder<bool>(
-          valueListenable: _controller.isPausedNotifier,
-          builder: (_, paused, __) {
-            return ElevatedButton(
-              onPressed: paused ? _controller.resume : _controller.pause,
-              child: Text(paused ? "RESUME" : "PAUSE"),
-            );
-          },
-        ),
-        const SizedBox(width: 20),
-        ElevatedButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text("QUIT GAME"),
-        ),
-      ],
+  Widget _buildActionButtons() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          Expanded(
+            child: ValueListenableBuilder<bool>(
+              valueListenable: _controller.isPausedNotifier,
+              builder: (_, paused, __) => ElevatedButton.icon(
+                onPressed: paused ? _controller.resume : _controller.pause,
+                icon: Icon(paused ? Icons.play_arrow : Icons.pause),
+                label: Text(paused ? "Resume" : "Pause"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: paused
+                      ? Colors.green[600]
+                      : Colors.grey[700],
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: OutlinedButton.icon(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(Icons.exit_to_app),
+              label: const Text("Quit"),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.red[400],
+                side: BorderSide(color: Colors.red[400]!, width: 1.5),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -198,23 +361,71 @@ class _AnalogiesGameState extends State<AnalogiesGame>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.flag, size: 100, color: Colors.green),
-          const SizedBox(height: 20),
+          Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.green[900]?.withOpacity(0.3),
+            ),
+            child: Icon(Icons.check_circle, size: 80, color: Colors.green[400]),
+          ),
+          const SizedBox(height: 32),
           const Text(
-            "Game Over!",
+            "Great Job!",
             style: TextStyle(
               color: Colors.white,
-              fontSize: 24,
+              fontSize: 32,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 20),
-          ElevatedButton(
+          const SizedBox(height: 12),
+          Text(
+            "You completed all ${widget.quantity} rounds",
+            style: const TextStyle(color: Colors.white70, fontSize: 18),
+          ),
+          const SizedBox(height: 48),
+          FilledButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Back to Menu"),
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.green[600],
+              padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text(
+              "Back to Menu",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            ),
           ),
         ],
       ),
     );
   }
 }
+
+//     return Center(
+//       child: Column(
+//         mainAxisAlignment: MainAxisAlignment.center,
+//         children: [
+//           const Icon(Icons.flag, size: 100, color: Colors.green),
+//           const SizedBox(height: 20),
+//           const Text(
+//             "Game Over!",
+//             style: TextStyle(
+//               color: Colors.white,
+//               fontSize: 24,
+//               fontWeight: FontWeight.bold,
+//             ),
+//           ),
+//           const SizedBox(height: 20),
+//           ElevatedButton(
+//             onPressed: () => Navigator.pop(context),
+//             child: const Text("Back to Menu"),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
