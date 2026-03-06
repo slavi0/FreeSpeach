@@ -137,7 +137,7 @@ class _TripleStepGameState extends State<TripleStepGame> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFF1E1E1E), // Dark background color
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 20.0),
@@ -151,7 +151,9 @@ class _TripleStepGameState extends State<TripleStepGame> {
                   IconButton(
                     icon: const Icon(
                       Icons.arrow_back,
-                      color: Color(0xFFE29B42),
+                      color: Color(
+                        0xFFE29B42,
+                      ), // Keep orange for back button or change if needed
                       size: 36,
                     ),
                     onPressed: () => Navigator.pop(context),
@@ -161,10 +163,13 @@ class _TripleStepGameState extends State<TripleStepGame> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: const [
-                        Icon(Icons.close, size: 24, color: Colors.black87),
+                        Icon(Icons.close, size: 24, color: Color(0xFF999999)),
                         Text(
                           "(Esc)",
-                          style: TextStyle(fontSize: 12, color: Colors.black87),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF999999),
+                          ),
                         ),
                       ],
                     ),
@@ -182,11 +187,11 @@ class _TripleStepGameState extends State<TripleStepGame> {
                   fontSize: 32,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 1.5,
-                  color: Color(0xFF111111),
+                  color: Colors.white, // White text for title
                 ),
               ),
 
-              const SizedBox(height: 60),
+              const SizedBox(height: 50),
 
               // Main Content Area
               Expanded(
@@ -199,8 +204,8 @@ class _TripleStepGameState extends State<TripleStepGame> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         SizedBox(
-                          width: 250,
-                          height: 250,
+                          width: 280,
+                          height: 280,
                           child: CustomPaint(
                             painter: PieTimerPainter(
                               // Using max of 1 to avoid division by zero
@@ -210,14 +215,15 @@ class _TripleStepGameState extends State<TripleStepGame> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 30),
+                        const SizedBox(height: 40),
                         Text(
                           _formatTime(_timeLeft),
                           style: const TextStyle(
-                            fontSize: 54,
+                            fontSize: 68,
                             fontWeight: FontWeight.w900,
-                            color: Color(0xFF7A7A7A),
-                            letterSpacing: 2.0,
+                            color: Color(
+                              0xFF999999,
+                            ), // Lighter gray for timer text on dark background
                           ),
                         ),
                       ],
@@ -226,7 +232,7 @@ class _TripleStepGameState extends State<TripleStepGame> {
                     const SizedBox(width: 80), // Spacing between timer and list
                     // Checkbox List
                     SizedBox(
-                      width: 250,
+                      width: 280,
                       child: ListView.builder(
                         shrinkWrap: true,
                         itemCount: widget.quantity,
@@ -235,7 +241,7 @@ class _TripleStepGameState extends State<TripleStepGame> {
                           bool isRevealed = index < _revealedWordsCount;
 
                           return Padding(
-                            padding: const EdgeInsets.only(bottom: 20.0),
+                            padding: const EdgeInsets.only(bottom: 24.0),
                             child: Row(
                               children: [
                                 GestureDetector(
@@ -248,8 +254,8 @@ class _TripleStepGameState extends State<TripleStepGame> {
                                     }
                                   },
                                   child: Container(
-                                    width: 32,
-                                    height: 32,
+                                    width: 36,
+                                    height: 36,
                                     decoration: BoxDecoration(
                                       color: _checkboxes[index]
                                           ? const Color(0xFFE29B42)
@@ -257,26 +263,32 @@ class _TripleStepGameState extends State<TripleStepGame> {
                                       border: Border.all(
                                         color: _checkboxes[index]
                                             ? const Color(0xFFE29B42)
-                                            : Colors.black87,
-                                        width: 1.5,
+                                            : const Color(
+                                                0xFF5A5A5A,
+                                              ), // Subtler border for checkboxes
+                                        width: 2.0,
                                       ),
+                                      borderRadius: BorderRadius.circular(6.0),
                                     ),
                                     child: _checkboxes[index]
                                         ? const Icon(
                                             Icons.check,
-                                            color: Colors.white,
-                                            size: 24,
+                                            color: Colors
+                                                .white, // Keep checkmark white or making it dark might contrast better
+                                            size: 28,
                                           )
                                         : null,
                                   ),
                                 ),
-                                const SizedBox(width: 15),
+                                const SizedBox(width: 20),
                                 Expanded(
                                   child: Text(
                                     isRevealed ? _revealedWords[index] : "",
                                     style: const TextStyle(
-                                      fontSize: 20,
-                                      color: Color(0xFF333333),
+                                      fontSize: 22,
+                                      color: Color(
+                                        0xFFE0E0E0,
+                                      ), // Off-white/light gray for list items
                                     ),
                                   ),
                                 ),
@@ -309,9 +321,7 @@ class PieTimerPainter extends CustomPainter {
 
     final paint = Paint()
       ..color =
-          const Color(
-            0xFFDF9E47,
-          ) // Matching the yellow-orange color from the image
+          const Color(0xFFE29B42) // Matching the checkbox orange color
       ..style = PaintingStyle.fill;
 
     // Remaining percentage is drawn starting clockwise from the depleted portion
