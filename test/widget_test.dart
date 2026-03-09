@@ -15,6 +15,6 @@ void main() {
     await tester.pumpWidget(MaterialApp(home: HomeMenu()));
 
     // Verify that the HomeMenu is displayed
-    expect(find.text('Choose a Game'), findsOneWidget);
+    expect(find.text('Free Speech'), findsOneWidget);
   });
 }

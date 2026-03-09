@@ -3,7 +3,6 @@ import 'package:free_speach/gameSettings.dart';
 import 'package:free_speach/gameConfig.dart';
 
 class HomeMenu extends StatelessWidget {
-  // A quick list of game data to keep the code clean
   final List<GameConfig> games = [
     GameConfig(
       name: "Triple step",
@@ -14,8 +13,14 @@ class HomeMenu extends StatelessWidget {
       timerLabel: "Timer (seconds)",
     ),
     GameConfig(
-      name: "Conductor",
+      name: "Style Conductor",
       image: "assets/game2.png",
+      showTimer: true,
+      timerLabel: "Timer",
+    ),
+    GameConfig(
+      name: "Power Conductor",
+      image: "assets/game2b.png",
       showTimer: true,
       timerLabel: "Timer",
     ),
@@ -37,61 +42,118 @@ class HomeMenu extends StatelessWidget {
     ),
   ];
 
+  // Icon and description for each game
+  final List<IconData> _icons = [
+    Icons.filter_3,
+    Icons.graphic_eq,
+    Icons.bolt,
+    Icons.flash_on,
+    Icons.compare_arrows,
+  ];
+
+  final List<String> _descriptions = [
+    "Describe three related topics in sequence against the clock.",
+    "Match your speaking style to the animated conductor's prompts.",
+    "Speak at the energy level shown — from a whisper to full power.",
+    "Complete the sentence as fast as you can, round after round.",
+    "Find the hidden link between two analogies under pressure.",
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Choose a Game')),
+      backgroundColor: const Color(0xFF0F0F0F),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        title: const Text(
+          'Free Speech',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 0.5,
+          ),
+        ),
+      ),
       body: ListView.builder(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 32.0),
         itemCount: games.length,
         itemBuilder: (context, index) {
-          return Card(
-            elevation: 4,
-            margin: EdgeInsets.only(bottom: 20),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: InkWell(
-              // This makes the box clickable!
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    // Pass the entire GameConfig object from your list
-                    builder: (context) =>
-                        GameSettingsScreen(config: games[index]),
-                  ),
-                );
-              },
-              child: Column(
-                children: [
-                  // Game Image
-                  ClipRRect(
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(15),
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: Material(
+              color: const Color(0xFF1A1A1A),
+              borderRadius: BorderRadius.circular(16),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(16),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          GameSettingsScreen(config: games[index]),
                     ),
-                    child: Container(
-                      height: 150,
-                      width: double.infinity,
-                      color: Colors.grey[300], // Placeholder color
-                      child: Icon(
-                        Icons.gamepad,
-                        size: 50,
-                      ), // Swap with Image.asset
-                    ),
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20.0,
+                    vertical: 20.0,
                   ),
-                  // Game Title
-                  Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Text(
-                      games[index].name,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                  child: Row(
+                    children: [
+                      // Green icon badge
+                      Container(
+                        width: 52,
+                        height: 52,
+                        decoration: BoxDecoration(
+                          color: Colors.green[900]?.withOpacity(0.35),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Icon(
+                          _icons[index],
+                          color: Colors.green[400],
+                          size: 28,
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: 16),
+                      // Title + description
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              games[index].name,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 17,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              _descriptions[index],
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.45),
+                                fontSize: 13,
+                                height: 1.4,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      // Chevron
+                      Icon(
+                        Icons.chevron_right,
+                        color: Colors.white.withOpacity(0.3),
+                        size: 24,
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           );

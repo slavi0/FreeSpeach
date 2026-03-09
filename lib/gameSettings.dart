@@ -3,6 +3,7 @@ import 'package:free_speach/analogiesGame.dart';
 import 'package:free_speach/autocompleteGame.dart';
 import 'package:free_speach/conductorGame.dart';
 import 'package:free_speach/gameConfig.dart';
+import 'package:free_speach/powerConductorGame.dart';
 import 'package:free_speach/tripleStepGame.dart';
 
 class GameSettingsScreen extends StatefulWidget {
@@ -22,104 +23,138 @@ class _GameSettingsScreenState extends State<GameSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF0F0F0F),
       appBar: AppBar(
-        title: Text('${widget.config.name} Settings'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: Icon(Icons.arrow_back, color: Colors.green[400]),
           onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          '${widget.config.name} Settings',
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(24.0, 20.0, 24.0, 40.0),
-          children: [
-            // Quantity slider
-            if (widget.config.showQuantity) ...[
-              Text(
-                "${widget.config.quantityLabel}: ${_quantity.round()}",
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue,
+        child: SliderTheme(
+          data: SliderThemeData(
+            activeTrackColor: Colors.green[400],
+            inactiveTrackColor: Colors.green[900]?.withOpacity(0.3),
+            thumbColor: Colors.green[400],
+            overlayColor: Colors.green[400]?.withOpacity(0.15),
+            valueIndicatorColor: Colors.green[700],
+            valueIndicatorTextStyle: const TextStyle(color: Colors.white),
+          ),
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(24.0, 20.0, 24.0, 40.0),
+            children: [
+              // Quantity slider
+              if (widget.config.showQuantity) ...[
+                Text(
+                  "${widget.config.quantityLabel}: ${_quantity.round()}",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.green[400],
+                  ),
+                ),
+                Slider(
+                  value: _quantity,
+                  min: 1,
+                  max: 20,
+                  divisions: 19,
+                  label: _quantity.round().toString(),
+                  onChanged: (val) => setState(() => _quantity = val),
+                ),
+                const SizedBox(height: 30),
+              ],
+
+              // Timer slider
+              if (widget.config.showTimer) ...[
+                Text(
+                  "${widget.config.timerLabel}: ${_timer.round()} seconds",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.green[400],
+                  ),
+                ),
+                Slider(
+                  value: _timer,
+                  min: 5,
+                  max: 120,
+                  divisions: 115,
+                  label: "${_timer.round()}s",
+                  onChanged: (val) => setState(() => _timer = val),
+                ),
+                const SizedBox(height: 30),
+              ],
+
+              // Rounds slider
+              if (widget.config.secondsPerRound) ...[
+                Text(
+                  "${widget.config.roundsLabel}: ${_rounds.round()}",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.green[400],
+                  ),
+                ),
+                Slider(
+                  value: _rounds,
+                  min: 1,
+                  max: 20,
+                  divisions: 19,
+                  label: _rounds.round().toString(),
+                  onChanged: (val) => setState(() => _rounds = val),
+                ),
+                const SizedBox(height: 30),
+              ],
+
+              const SizedBox(height: 40),
+
+              // START BUTTON
+              FilledButton.icon(
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.green[600],
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(double.infinity, 60),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                onPressed: () => _navigateToGame(context),
+                icon: const Icon(Icons.play_arrow),
+                label: const Text(
+                  "START GAME",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
-              Slider(
-                value: _quantity,
-                min: 1,
-                max: 20,
-                divisions: 19,
-                label: _quantity.round().toString(),
-                onChanged: (val) => setState(() => _quantity = val),
-              ),
-              const SizedBox(height: 30),
-            ],
 
-            // Timer slider
-            if (widget.config.showTimer) ...[
-              Text(
-                "${widget.config.timerLabel}: ${_timer.round()} seconds",
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue,
+              const SizedBox(height: 16),
+
+              // BACK BUTTON
+              OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.red[400],
+                  side: BorderSide(color: Colors.red[400]!, width: 1.5),
+                  minimumSize: const Size(double.infinity, 52),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                onPressed: () => Navigator.pop(context),
+                child: const Text(
+                  "Back to Menu",
+                  style: TextStyle(fontSize: 16),
                 ),
               ),
-              Slider(
-                value: _timer,
-                min: 5,
-                max: 120,
-                divisions: 115,
-                label: "${_timer.round()}s",
-                onChanged: (val) => setState(() => _timer = val),
-              ),
-              const SizedBox(height: 30),
             ],
-
-            // Seconds per round slider
-            if (widget.config.secondsPerRound) ...[
-              Text(
-                "${widget.config.roundsLabel}: ${_rounds.round()}",
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue,
-                ),
-              ),
-              Slider(
-                value: _rounds,
-                min: 1,
-                max: 20,
-                divisions: 19,
-                label: _rounds.round().toString(),
-                onChanged: (val) => setState(() => _rounds = val),
-              ),
-              const SizedBox(height: 30),
-            ],
-
-            const SizedBox(height: 40),
-
-            // START BUTTON
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                foregroundColor: Colors.white,
-                minimumSize: const Size(double.infinity, 60),
-              ),
-              onPressed: () => _navigateToGame(context),
-              child: const Text(
-                "START GAME",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // BACK BUTTON
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Back to Menu", style: TextStyle(fontSize: 18)),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -135,8 +170,11 @@ class _GameSettingsScreenState extends State<GameSettingsScreen> {
           timer: _timer.round(),
         );
         break;
-      case "Conductor":
+      case "Style Conductor":
         gameWidget = ConductorGame(timer: _timer.round());
+        break;
+      case "Power Conductor":
+        gameWidget = PowerConductorGame(timer: _timer.round());
         break;
       case "Rapid fire autocomplete":
         gameWidget = AutocompleteGame(
