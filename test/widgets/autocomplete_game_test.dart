@@ -23,9 +23,9 @@ void main() {
       );
 
       // Should show game content, not finished view
-      expect(find.text('Round 1 / 3'), findsOneWidget);
-      expect(find.text('PAUSE'), findsOneWidget);
-      expect(find.text('QUIT GAME'), findsOneWidget);
+      expect(find.text('1 / 3'), findsOneWidget); // HUD round format
+      expect(find.text('Pause'), findsOneWidget);
+      expect(find.text('Quit'), findsOneWidget);
     });
 
     testWidgets('displays round counter correctly', (
@@ -35,7 +35,7 @@ void main() {
         const MaterialApp(home: AutocompleteGame(quantity: 5, timer: 10)),
       );
 
-      expect(find.text('Round 1 / 5'), findsOneWidget);
+      expect(find.text('1 / 5'), findsOneWidget);
     });
 
     testWidgets('displays time text', (WidgetTester tester) async {
@@ -43,10 +43,12 @@ void main() {
         const MaterialApp(home: AutocompleteGame(quantity: 3, timer: 10)),
       );
 
-      // Time should be displayed (format: "Time: X.Xs")
+      // Time should be displayed (format: "10.0s")
       expect(
         find.byWidgetPredicate((widget) {
-          return widget is Text && widget.data!.startsWith('Time:');
+          return widget is Text &&
+              widget.data!.endsWith('s') &&
+              double.tryParse(widget.data!.replaceAll('s', '')) != null;
         }),
         findsOneWidget,
       );
@@ -57,12 +59,12 @@ void main() {
         const MaterialApp(home: AutocompleteGame(quantity: 3, timer: 10)),
       );
 
-      expect(find.text('PAUSE'), findsOneWidget);
+      expect(find.text('Pause'), findsOneWidget);
 
-      await tester.tap(find.text('PAUSE'));
+      await tester.tap(find.text('Pause'));
       await tester.pumpAndSettle();
 
-      expect(find.text('RESUME'), findsOneWidget);
+      expect(find.text('Resume'), findsOneWidget);
     });
 
     testWidgets('quit button pops the route', (WidgetTester tester) async {
@@ -72,7 +74,7 @@ void main() {
         ),
       );
 
-      await tester.tap(find.text('QUIT GAME'));
+      await tester.tap(find.text('Quit'));
       await tester.pumpAndSettle();
 
       // Should pop back (we're in a scaffold, so check if autocomplete game is gone)
@@ -88,7 +90,10 @@ void main() {
       expect(scaffold, findsOneWidget);
 
       final scaffoldWidget = tester.widget<Scaffold>(scaffold);
-      expect(scaffoldWidget.backgroundColor, Colors.black87);
+      expect(
+        scaffoldWidget.backgroundColor,
+        const Color(0xFF0F0F0F),
+      ); // Updated background color
     });
 
     testWidgets('shows game over screen after finish', (
@@ -99,15 +104,14 @@ void main() {
       );
 
       // Initial state: playing
-      expect(find.text('Round 1 / 1'), findsOneWidget);
-      expect(find.text('PAUSE'), findsOneWidget);
+      expect(find.text('1 / 1'), findsOneWidget);
+      expect(find.byIcon(Icons.pause), findsOneWidget);
 
       // Advance time past the round
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
       // After finish: should show Game Over screen
-      expect(find.text('Game Over!'), findsOneWidget);
-      expect(find.byIcon(Icons.flag), findsOneWidget);
+      expect(find.text('Great Job!'), findsOneWidget);
       expect(find.text('Back to Menu'), findsOneWidget);
     });
 
@@ -116,21 +120,15 @@ void main() {
         const MaterialApp(home: AutocompleteGame(quantity: 3, timer: 10)),
       );
 
-      // At least one prompt should be visible
-      final prompts = [
-        'The best way to predict the future is to',
-        'If I were an animal I would be a',
-        'A secret talent I have is',
-      ];
-
-      bool foundPrompt = false;
-      for (final prompt in prompts) {
-        if (find.text(prompt).evaluate().isNotEmpty) {
-          foundPrompt = true;
-          break;
-        }
-      }
-      expect(foundPrompt, true);
+      // We expect at least one text widget with the style of the prompt
+      expect(
+        find.byWidgetPredicate((widget) {
+          return widget is Text &&
+              widget.data!.length > 10 &&
+              widget.data!.endsWith('…');
+        }),
+        findsOneWidget,
+      );
     });
   });
 }

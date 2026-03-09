@@ -12,11 +12,12 @@ void main() {
         totalRounds: 3,
         secondsPerRound: 10,
       );
-      addTearDown(controller.dispose);
 
       expect(controller.roundNotifier.value, 0);
       expect(controller.isPausedNotifier.value, false);
       expect(controller.finishedNotifier.value, false);
+
+      controller.dispose();
     });
 
     testWidgets('finishes immediately if totalRounds is 0 or negative', (
@@ -27,11 +28,12 @@ void main() {
         totalRounds: 0,
         secondsPerRound: 10,
       );
-      addTearDown(controller.dispose);
 
       controller.start();
       expect(controller.finishedNotifier.value, true);
       expect(controller.roundNotifier.value, 0);
+
+      controller.dispose();
     });
 
     testWidgets('initializes round to 1 when started', (
@@ -42,10 +44,14 @@ void main() {
         totalRounds: 3,
         secondsPerRound: 10,
       );
-      addTearDown(controller.dispose);
 
       controller.start();
       expect(controller.roundNotifier.value, 1);
+
+      // Stop the animation before dispose
+      controller.pause();
+      await tester.pumpWidget(const Placeholder());
+      controller.dispose();
     });
 
     testWidgets('pause sets isPausedNotifier to true', (
@@ -56,11 +62,12 @@ void main() {
         totalRounds: 1,
         secondsPerRound: 5,
       );
-      addTearDown(controller.dispose);
 
       controller.start();
       controller.pause();
       expect(controller.isPausedNotifier.value, true);
+
+      controller.dispose();
     });
 
     testWidgets('resume sets isPausedNotifier to false', (
@@ -71,7 +78,6 @@ void main() {
         totalRounds: 1,
         secondsPerRound: 5,
       );
-      addTearDown(controller.dispose);
 
       controller.start();
       controller.pause();
@@ -79,6 +85,10 @@ void main() {
 
       controller.resume();
       expect(controller.isPausedNotifier.value, false);
+
+      // Clean up
+      controller.pause();
+      controller.dispose();
     });
 
     testWidgets('notifiers are disposed without error', (
@@ -98,6 +108,7 @@ void main() {
       controller.start();
       expect(roundChangedCount, 1);
 
+      controller.pause();
       controller.dispose();
       // After dispose, further state changes should not trigger errors
     });
@@ -110,11 +121,13 @@ void main() {
         totalRounds: 1,
         secondsPerRound: 10,
       );
-      addTearDown(controller.dispose);
 
       controller.start();
       // time should be close to the secondsPerRound value
       expect(controller.timeNotifier.value, greaterThan(0));
+
+      controller.pause();
+      controller.dispose();
     });
   });
 }

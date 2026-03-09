@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 import 'games/rapid_fire/rapid_fire_controller.dart';
 
 /// Rapid‑fire analogies game.
@@ -60,58 +61,74 @@ class _AnalogiesGameState extends State<AnalogiesGame>
   }
 
   List<String> _loadPrompts() {
-    return [
-      "A is like B because…",
-      "Life is like a box of chocolates because…",
-      "Love is like a… because…",
-      "Friendship is like… because…",
-      "Happiness is like… because…",
-      "A successful career is like planting a tree because…",
-      "Learning is like… because…",
-      "Failure is like… because…",
-      "Communication is like a bridge because…",
-      "Time is like… because…",
-      "Patience is like… because…",
-      "Courage is like… because…",
-      "A team is like an orchestra because…",
-      "Growth is like… because…",
-      "Struggle is like… because…",
-      "Trust is like… because…",
-      "Change is like… because…",
-      "Hope is like… because…",
-      "A good habit is like… because…",
-      "Creativity is like… because…",
-      "Connection is like… because…",
-      "Knowledge is like a key because…",
-      "Resilience is like… because…",
-      "A conversation is like… because…",
-      "Purpose is like… because…",
-      "Integrity is like… because…",
-      "A problem is like a puzzle because…",
-      "Perspective is like… because…",
-      "Self-improvement is like… because…",
-      "Motivation is like… because…",
-      "A good mentor is like… because…",
-      "Forgiveness is like… because…",
-      "Perseverance is like… because…",
-      "Understanding is like… because…",
-      "A healthy mind is like… because…",
-      "Empathy is like… because…",
-      "Success is like climbing a mountain because…",
-      "A skill is like a muscle because…",
-      "Listening is like… because…",
-      "Dreams are like… because…",
-      "Discipline is like… because…",
-      "Opportunity is like… because…",
-      "A relationship is like a garden because…",
-      "Freedom is like… because…",
-      "Progress is like… because…",
-      "Authenticity is like… because…",
-      "A goal is like a destination because…",
-      "Gratitude is like… because…",
-      "Innovation is like… because…",
-      "Community is like… because…",
+    final List<String> words = [
+      "Life",
+      "Love",
+      "Time",
+      "A dream",
+      "A puzzle",
+      "A tree",
+      "The ocean",
+      "A mountain",
+      "A book",
+      "A symphony",
+      "A garden",
+      "A bridge",
+      "A mirror",
+      "A map",
+      "A compass",
+      "A fire",
+      "A storm",
+      "A journey",
+      "A game",
+      "A river",
+      "A seed",
+      "A spark",
+      "A shadow",
+      "A melody",
+      "A canvas",
+      "A marathon",
+      "A dance",
+      "A clock",
+      "A battery",
+      "A camera",
+      "Success",
+      "Failure",
+      "Hope",
+      "Fear",
+      "Trust",
+      "Patience",
+      "Change",
+      "Knowledge",
+      "Wisdom",
+      "Memory",
+      "Courage",
+      "Freedom",
+      "Peace",
+      "Friendship",
+      "Youth",
+      "Sleep",
+      "Laughter",
+      "Silence",
+      "Art",
+      "Music",
     ];
+
+    List<String> generated = [];
+    final random = math.Random();
+
+    // Generate 50 unique analogical prompts
+    for (int i = 0; i < 50; i++) {
+      String wordA = words[random.nextInt(words.length)];
+      String wordB;
+      do {
+        wordB = words[random.nextInt(words.length)];
+      } while (wordA == wordB);
+
+      generated.add("$wordA is like ${wordB.toLowerCase()}, because...");
+    }
+
+    return generated;
   }
 
   @override

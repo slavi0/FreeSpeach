@@ -89,12 +89,17 @@ class _TripleStepGameState extends State<TripleStepGame> {
   }
 
   void _startTimer() {
+    // Reveal one word every (timer / quantity) seconds, evenly spaced
+    final revealInterval = widget.quantity > 0
+        ? (widget.timer / widget.quantity).floor()
+        : widget.timer;
+
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (t) {
       setState(() {
         if (_timeLeft > 0) {
           _timeLeft--;
           final secondsPassed = widget.timer - _timeLeft;
-          if (secondsPassed > 0 && secondsPassed % 10 == 0) {
+          if (revealInterval > 0 && secondsPassed % revealInterval == 0) {
             if (_revealedWordsCount < widget.quantity) {
               _revealedWordsCount++;
             }
@@ -257,103 +262,79 @@ class _TripleStepGameState extends State<TripleStepGame> {
 
               const SizedBox(height: 32),
 
-              // Main content
+              // Timer — centered at the top of the content area
+              Text(
+                _formatTime(_timeLeft),
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 52,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF999999),
+                ),
+              ),
+
+              const SizedBox(height: 32),
+
+              // Checkbox + word list — takes remaining space, scrollable
               Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Pie timer + text timer
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(
-                          width: 240,
-                          height: 240,
-                          child: CustomPaint(
-                            painter: PieTimerPainter(
-                              percentage: widget.timer == 0
-                                  ? 0
-                                  : _timeLeft / widget.timer,
+                child: ListView.builder(
+                  itemCount: widget.quantity,
+                  itemBuilder: (context, index) {
+                    final isRevealed = index < _revealedWordsCount;
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 20.0),
+                      child: Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              if (isRevealed) {
+                                setState(() {
+                                  _checkboxes[index] = !_checkboxes[index];
+                                });
+                              }
+                            },
+                            child: Container(
+                              width: 34,
+                              height: 34,
+                              decoration: BoxDecoration(
+                                color: _checkboxes[index]
+                                    ? Colors.green[500]
+                                    : Colors.transparent,
+                                border: Border.all(
+                                  color: _checkboxes[index]
+                                      ? Colors.green[400]!
+                                      : const Color(0xFF5A5A5A),
+                                  width: 2.0,
+                                ),
+                                borderRadius: BorderRadius.circular(6.0),
+                              ),
+                              child: _checkboxes[index]
+                                  ? const Icon(
+                                      Icons.check,
+                                      color: Colors.white,
+                                      size: 22,
+                                    )
+                                  : null,
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 28),
-                        Text(
-                          _formatTime(_timeLeft),
-                          style: const TextStyle(
-                            fontSize: 52,
-                            fontWeight: FontWeight.w900,
-                            color: Color(0xFF999999),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(width: 60),
-
-                    // Checkbox list
-                    SizedBox(
-                      width: 260,
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: widget.quantity,
-                        itemBuilder: (context, index) {
-                          final isRevealed = index < _revealedWordsCount;
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 20.0),
-                            child: Row(
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    if (isRevealed) {
-                                      setState(() {
-                                        _checkboxes[index] =
-                                            !_checkboxes[index];
-                                      });
-                                    }
-                                  },
-                                  child: Container(
-                                    width: 34,
-                                    height: 34,
-                                    decoration: BoxDecoration(
-                                      color: _checkboxes[index]
-                                          ? Colors.green[500]
-                                          : Colors.transparent,
-                                      border: Border.all(
-                                        color: _checkboxes[index]
-                                            ? Colors.green[400]!
-                                            : const Color(0xFF5A5A5A),
-                                        width: 2.0,
-                                      ),
-                                      borderRadius: BorderRadius.circular(6.0),
-                                    ),
-                                    child: _checkboxes[index]
-                                        ? const Icon(
-                                            Icons.check,
-                                            color: Colors.white,
-                                            size: 22,
-                                          )
-                                        : null,
-                                  ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: AnimatedOpacity(
+                              opacity: isRevealed ? 1.0 : 0.0,
+                              duration: const Duration(milliseconds: 400),
+                              child: Text(
+                                _revealedWords[index],
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  color: Color(0xFFE0E0E0),
                                 ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Text(
-                                    isRevealed ? _revealedWords[index] : "",
-                                    style: const TextStyle(
-                                      fontSize: 20,
-                                      color: Color(0xFFE0E0E0),
-                                    ),
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
-                          );
-                        },
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                    );
+                  },
                 ),
               ),
             ],
@@ -362,50 +343,4 @@ class _TripleStepGameState extends State<TripleStepGame> {
       ),
     );
   }
-}
-
-// ── Pie timer painter ────────────────────────────────────────────────────────
-class PieTimerPainter extends CustomPainter {
-  final double percentage;
-
-  PieTimerPainter({required this.percentage});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = math.min(size.width / 2, size.height / 2);
-
-    // Dark background circle
-    final bgPaint = Paint()
-      ..color = const Color(0xFF1A1A1A)
-      ..style = PaintingStyle.fill;
-    canvas.drawCircle(center, radius, bgPaint);
-
-    // Green fill arc
-    final fillPaint = Paint()
-      ..color = Colors.green.shade500
-      ..style = PaintingStyle.fill;
-
-    if (percentage >= 1.0) {
-      canvas.drawCircle(center, radius, fillPaint);
-      return;
-    }
-
-    if (percentage > 0) {
-      final emptyPct = 1.0 - percentage;
-      final startAngle = -math.pi / 2 + (2 * math.pi * emptyPct);
-      final sweepAngle = 2 * math.pi * percentage;
-      canvas.drawArc(
-        Rect.fromCircle(center: center, radius: radius),
-        startAngle,
-        sweepAngle,
-        true,
-        fillPaint,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant PieTimerPainter old) =>
-      old.percentage != percentage;
 }

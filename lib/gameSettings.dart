@@ -16,9 +16,52 @@ class GameSettingsScreen extends StatefulWidget {
 }
 
 class _GameSettingsScreenState extends State<GameSettingsScreen> {
-  double _quantity = 5;
-  double _timer = 30;
-  double _rounds = 3;
+  late double _quantity;
+  late double _timer;
+  late double _rounds;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize defaults within bounds
+    _quantity =
+        widget.config.minQuantity +
+        ((widget.config.maxQuantity - widget.config.minQuantity) * 0.2)
+            .roundToDouble();
+    _quantity = _quantity.clamp(
+      widget.config.minQuantity,
+      widget.config.maxQuantity,
+    );
+
+    _timer =
+        widget.config.minTimer +
+        ((widget.config.maxTimer - widget.config.minTimer) * 0.3)
+            .roundToDouble();
+    _timer = _timer.clamp(widget.config.minTimer, widget.config.maxTimer);
+
+    _rounds =
+        widget.config.minRounds +
+        ((widget.config.maxRounds - widget.config.minRounds) * 0.2)
+            .roundToDouble();
+    _rounds = _rounds.clamp(widget.config.minRounds, widget.config.maxRounds);
+
+    _enforceTripleStepLogic();
+  }
+
+  void _enforceTripleStepLogic() {
+    if (widget.config.name == "Triple step") {
+      // Must have at least 5 seconds per topic
+      double minimumRequiredTime = _quantity * 5;
+      if (_timer < minimumRequiredTime) {
+        _timer = minimumRequiredTime;
+        if (_timer > widget.config.maxTimer) {
+          _timer = widget.config.maxTimer;
+          // If max timer isn't enough, we must restrict quantity
+          _quantity = (_timer / 5).floorToDouble();
+        }
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,11 +107,18 @@ class _GameSettingsScreenState extends State<GameSettingsScreen> {
                 ),
                 Slider(
                   value: _quantity,
-                  min: 1,
-                  max: 20,
-                  divisions: 19,
+                  min: widget.config.minQuantity,
+                  max: widget.config.maxQuantity,
+                  divisions:
+                      (widget.config.maxQuantity - widget.config.minQuantity)
+                          .toInt(),
                   label: _quantity.round().toString(),
-                  onChanged: (val) => setState(() => _quantity = val),
+                  onChanged: (val) {
+                    setState(() {
+                      _quantity = val;
+                      _enforceTripleStepLogic();
+                    });
+                  },
                 ),
                 const SizedBox(height: 30),
               ],
@@ -85,11 +135,17 @@ class _GameSettingsScreenState extends State<GameSettingsScreen> {
                 ),
                 Slider(
                   value: _timer,
-                  min: 5,
-                  max: 120,
-                  divisions: 115,
+                  min: widget.config.minTimer,
+                  max: widget.config.maxTimer,
+                  divisions: (widget.config.maxTimer - widget.config.minTimer)
+                      .toInt(),
                   label: "${_timer.round()}s",
-                  onChanged: (val) => setState(() => _timer = val),
+                  onChanged: (val) {
+                    setState(() {
+                      _timer = val;
+                      _enforceTripleStepLogic();
+                    });
+                  },
                 ),
                 const SizedBox(height: 30),
               ],
@@ -106,9 +162,10 @@ class _GameSettingsScreenState extends State<GameSettingsScreen> {
                 ),
                 Slider(
                   value: _rounds,
-                  min: 1,
-                  max: 20,
-                  divisions: 19,
+                  min: widget.config.minRounds,
+                  max: widget.config.maxRounds,
+                  divisions: (widget.config.maxRounds - widget.config.minRounds)
+                      .toInt(),
                   label: _rounds.round().toString(),
                   onChanged: (val) => setState(() => _rounds = val),
                 ),
